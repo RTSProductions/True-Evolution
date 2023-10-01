@@ -8,6 +8,18 @@ public class Animal : MonoBehaviour
 
     public float weight;
 
+    public float reproductionTime = 0;
+
+    public float timeToDeath = 0;
+
+    public LayerMask possibleSensory;
+
+    float energyCost;
+
+    float veiwAngle;
+
+    public Rigidbody rb;
+
     public Transform head;
 
     public Transform neck;
@@ -34,18 +46,160 @@ public class Animal : MonoBehaviour
 
     public Transform LBackLegAttachmentPoint;
 
+    bool foundSMT = false;
+
+    Vector3 thingFound = Vector3.zero;
+
     // Start is called before the first frame update
     void Start()
     {
+        genes.isMale = Random.value > 0.5f;
+
         weight = genes.CalculateWeight();
 
         ArrangeParts();
+
+        StartCoroutine(ChangeVeiwAngle());
+
+        reproductionTime = Random.Range(0f, 1f);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        reproductionTime += Time.deltaTime * 1 / 200;
+
+        timeToDeath += Time.deltaTime * 1 / 400;
+
+        if (timeToDeath >= 1)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        Sense();
+        Move();
+    }
+
+    void Move()
+    {
+        //Ray forward = new Ray(transform.position + (Vector3.up * 0.8f), transform.forward);
+        //Ray right = new Ray(transform.position + (Vector3.up * 0.8f), transform.right);
+        //Ray left = new Ray(transform.position + (Vector3.up * 0.8f), -transform.right);
+        //if (Physics.Raycast(forward, 0.32f * 2, obstacleAvoidance))
+        //{
+        //    if (!Physics.Raycast(right, 0.32f * 2, obstacleAvoidance))
+        //    {
+        //        Vector3 stirAmount = transform.right.normalized;
+        //        //Vector3 movementDir = (transform.position + stirAmount - transform.position).normalized;
+        //        moveAmount = stirAmount * speed;
+        //    }
+        //    else if (!Physics.Raycast(left, 0.32f * 2, obstacleAvoidance))
+        //    {
+        //        Vector3 stirAmount = -transform.right.normalized;
+        //        //Vector3 movementDir = (transform.position + stirAmount - transform.position).normalized;
+        //        moveAmount = stirAmount * speed;
+        //    }
+        //}
+
+        energyCost = Mathf.Pow(weight, 3) + Mathf.Pow(genes.speed, 2) + genes.sensoryRadius;
+
+
+        Vector3 moveAmount;
+        Vector3 movementDir = transform.forward * 2;
+        moveAmount = movementDir * (genes.speed / weight);
+        rb.velocity = (moveAmount * Time.fixedDeltaTime * 30) + new Vector3(0, rb.velocity.y, 0);
+
+        //Quaternion veiwAngleRot = Quaternion.Euler(new Vector3(0, veiwAngle, 0));
+
+        //Quaternion newRot = new Quaternion(transform.rotation.x + veiwAngleRot.x, transform.rotation.y + veiwAngleRot.y, transform.rotation.z + veiwAngleRot.z, transform.rotation.w + veiwAngleRot.w);
+
+        if (foundSMT == false)
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(new Vector3(0, veiwAngle, 0)), Time.deltaTime);
+        else
+            FaceTarget(thingFound);
+    }
+
+    void Sense()
+    {
+        Collider[] objectsFound = Physics.OverlapSphere(transform.position, genes.sensoryRadius, possibleSensory);
+        foundSMT = false;
+        foreach (Collider obj in objectsFound)
+        {
+            if (obj.gameObject != gameObject && obj.transform.parent != transform)
+            {
+                Animal animal = obj.GetComponentInParent<Animal>();
+                if (reproductionTime >= 0.5f && animal.genes.isMale != genes.isMale)
+                {
+                    foundSMT = true;
+                    thingFound = obj.transform.position;
+                    float dist = Vector3.Distance(transform.position, obj.transform.position);
+
+                    //animal.ArrangeParts();
+
+                    if (dist <= 2 && animal.isAttracted(this) && isAttracted(animal))
+                    {
+                        reproductionTime = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    public bool isAttracted(Animal other)
+    {
+        if (reproductionTime >= 0.5f && !genes.isMale)
+        {
+            reproductionTime = 0;
+            Reproduce(other.genes);
+        }
+
+        return reproductionTime >= 1;
+    }
+
+    void Reproduce(Genes father)
+    {
+        var child = Instantiate(gameObject, transform.position, Quaternion.identity);
+
+        Animal childAnimal = child.GetComponent<Animal>();
+
+        childAnimal.genes.InheritGenes(genes, father);
+
+        childAnimal.ArrangeParts();
+
+        childAnimal.timeToDeath = 0;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawWireSphere(transform.position, genes.sensoryRadius);
+    }
+
+    IEnumerator ChangeVeiwAngle()
+    {
+        yield return new WaitForSeconds(1);
+
+        if (foundSMT == false)
+            veiwAngle += Random.Range(-90, 90);
+        StartCoroutine(ChangeVeiwAngle());
+    }
+
+    void FaceTarget(Vector3 target)
+    {
+        Vector3 direction = (target - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+    }
+
+    void FaceAwayFromPredator(Vector3 target)
+    {
+        Vector3 direction = (target - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(-direction.x, 0, -direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
     void ArrangeParts()
