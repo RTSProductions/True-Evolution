@@ -11,6 +11,10 @@ public class Genes
 
     public float sensoryRadius = 10;
 
+    public float reproductiveUrge = 0.5f;
+
+    public float reproductiveStaminaRegenerationTime = 20f;
+
     public float headLength = 1;
 
     public float headWidth = 1;
@@ -77,17 +81,36 @@ public class Genes
     {
         float mutantGene = gene;
 
-        if (Random.value >= 0.5)
+        if (Random.value <= Environment.mutChance)
         {
-            mutantGene += Random.Range(minChange, maxChange);
+            mutantGene += (Environment.mutStrength*  Random.Range(minChange, maxChange));
         }
 
         return mutantGene;
     }
 
+    public float ChangeGene(float gene, float minChange, float maxChange)
+    {
+        return Random.Range(minChange, maxChange);
+    }
+
     public void InheritGenes(Genes motherGenes, Genes fatherGenes)
     {
-        color = Color.Lerp(fatherGenes.color, motherGenes.color, 0.5f);
+        if (Random.value >= 0.9f)
+        {
+            color.r = ChangeGene(color.r, 1 / 255, 1);
+
+            color.g = ChangeGene(color.g, 1 / 255, 1);
+
+            color.b = ChangeGene(color.b, 1 / 255, 1);
+
+            color.a = 255;
+        }
+        else
+        {
+            color = Color.Lerp(fatherGenes.color, motherGenes.color, 0.5f);
+            color.a = 255;
+        }
 
         float newSpeed = SelectGene(motherGenes.speed, fatherGenes.speed);
 
@@ -100,6 +123,17 @@ public class Genes
 
         speed = newSpeed;
 
+        float newReproductiveStaminaRegenerationTime = SelectGene(motherGenes.reproductiveStaminaRegenerationTime, fatherGenes.reproductiveStaminaRegenerationTime);
+
+        newReproductiveStaminaRegenerationTime = MutateGene(newReproductiveStaminaRegenerationTime, -1.5f, 1.5f);
+
+        if (newReproductiveStaminaRegenerationTime < 1f)
+        {
+            newReproductiveStaminaRegenerationTime = 1f;
+        }
+
+        reproductiveStaminaRegenerationTime = newReproductiveStaminaRegenerationTime;
+
         float newSensoryRadius = SelectGene(motherGenes.sensoryRadius, fatherGenes.sensoryRadius);
 
         newSensoryRadius = MutateGene(newSensoryRadius, -4.5f, 4.5f);
@@ -110,6 +144,17 @@ public class Genes
         }
 
         sensoryRadius = newSensoryRadius;
+
+        float newReproductiveUrge = SelectGene(motherGenes.reproductiveUrge, fatherGenes.reproductiveUrge);
+
+        newReproductiveUrge = MutateGene(newReproductiveUrge, -0.1f, 0.1f);
+
+        if (newReproductiveUrge <= 0f)
+        {
+            newReproductiveUrge = 0.0001f;
+        }
+
+        reproductiveUrge = newReproductiveUrge;
 
         float newHeadLength = SelectGene(motherGenes.headLength, fatherGenes.headLength);
 

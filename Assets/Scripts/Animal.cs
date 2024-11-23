@@ -6,11 +6,23 @@ public class Animal : MonoBehaviour
 {
     public Genes genes;
 
+    public State state;
+
     public float weight;
 
-    public float reproductionTime = 0;
+    public float timeToDeathByAge = 0;
 
-    public float timeToDeath = 0;
+    public float timeToDeathByHunger = 0;
+
+    public float timeToMaturity = 0;
+
+    public float timeToReurge = 0;
+
+    public int generation = 0;
+
+    public int speciesIndex = 0;
+
+    public int ancestorIndex = 0;
 
     public LayerMask possibleSensory;
 
@@ -50,6 +62,14 @@ public class Animal : MonoBehaviour
 
     Vector3 thingFound = Vector3.zero;
 
+    List<Animal> UnimpressedFemales = new List<Animal>();
+
+    Animal possibleMate;
+
+    Food possibleFood;
+
+    Environment environment;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -57,24 +77,58 @@ public class Animal : MonoBehaviour
 
         weight = genes.CalculateWeight();
 
-        ArrangeParts();
 
         StartCoroutine(ChangeVeiwAngle());
 
-        reproductionTime = Random.Range(0f, 1f);
+        if (genes.isMale)
+        {
+            UnimpressedFemales = new List<Animal>();
+        }
+        if (environment == null)
+        {
+            environment = FindObjectOfType<Environment>();
+        }
+        if (!environment.animals.Contains(this))
+        {
+            environment.animals.Add(this);
+        }
+        ArrangeParts();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        reproductionTime += Time.deltaTime * 1 / 200;
-
-        timeToDeath += Time.deltaTime * 1 / 400;
-
-        if (timeToDeath >= 1)
+        if (runInEditMode)
         {
-            Destroy(gameObject);
+            ArrangeParts();
         }
+        timeToMaturity += Time.deltaTime * 1 / 200;
+
+        if (timeToMaturity >= 1)
+            timeToDeathByAge += Time.deltaTime * 1 / 600;
+
+        timeToDeathByHunger += Time.deltaTime / ((energyCost * 3.50877192982f) * 2);
+
+        if (timeToDeathByAge >= 1)
+        {
+            Die(CauseOfDeath.age);
+        }
+        else if (timeToDeathByHunger >= 1)
+        {
+            Die(CauseOfDeath.starvation);
+        }
+
+        Action();
+
+        if (environment == null)
+        {
+            environment = FindObjectOfType<Environment>();
+        }
+        //if (!environment.animals.Contains(this))
+        //{
+        //    environment.animals.Add(this);
+        //}
     }
 
     private void FixedUpdate()
@@ -85,25 +139,6 @@ public class Animal : MonoBehaviour
 
     void Move()
     {
-        //Ray forward = new Ray(transform.position + (Vector3.up * 0.8f), transform.forward);
-        //Ray right = new Ray(transform.position + (Vector3.up * 0.8f), transform.right);
-        //Ray left = new Ray(transform.position + (Vector3.up * 0.8f), -transform.right);
-        //if (Physics.Raycast(forward, 0.32f * 2, obstacleAvoidance))
-        //{
-        //    if (!Physics.Raycast(right, 0.32f * 2, obstacleAvoidance))
-        //    {
-        //        Vector3 stirAmount = transform.right.normalized;
-        //        //Vector3 movementDir = (transform.position + stirAmount - transform.position).normalized;
-        //        moveAmount = stirAmount * speed;
-        //    }
-        //    else if (!Physics.Raycast(left, 0.32f * 2, obstacleAvoidance))
-        //    {
-        //        Vector3 stirAmount = -transform.right.normalized;
-        //        //Vector3 movementDir = (transform.position + stirAmount - transform.position).normalized;
-        //        moveAmount = stirAmount * speed;
-        //    }
-        //}
-
         energyCost = Mathf.Pow(weight, 3) + Mathf.Pow(genes.speed, 2) + genes.sensoryRadius;
 
 
@@ -112,51 +147,131 @@ public class Animal : MonoBehaviour
         moveAmount = movementDir * (genes.speed / weight);
         rb.velocity = (moveAmount * Time.fixedDeltaTime * 30) + new Vector3(0, rb.velocity.y, 0);
 
-        //Quaternion veiwAngleRot = Quaternion.Euler(new Vector3(0, veiwAngle, 0));
-
-        //Quaternion newRot = new Quaternion(transform.rotation.x + veiwAngleRot.x, transform.rotation.y + veiwAngleRot.y, transform.rotation.z + veiwAngleRot.z, transform.rotation.w + veiwAngleRot.w);
-
         if (foundSMT == false)
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(new Vector3(0, veiwAngle, 0)), Time.deltaTime);
         else
             FaceTarget(thingFound);
     }
 
+    void Action()
+    {
+        float distance = Vector3.Distance(transform.position, new Vector3(thingFound.x, transform.position.y, thingFound.z));
+        switch (state)
+        {
+            case State.exploring:
+                break;
+            case State.lookingForMate:
+                if (distance <= 5)
+                {
+                    if (possibleMate.isAttracted(this))
+                    {
+                        //Debug.Log("" + (generation + 1));
+                        UnimpressedFemales.Add(possibleMate);
+                        StartCoroutine(ForgetHer(possibleMate));
+                        foundSMT = false;
+                        state = State.exploring;
+                        possibleMate = null;
+                        timeToReurge = genes.reproductiveStaminaRegenerationTime + Time.time;
+                    }
+                    else
+                    {
+                        UnimpressedFemales.Add(possibleMate);
+                        StartCoroutine(ForgetHer(possibleMate));
+                        foundSMT = false;
+                        state = State.exploring;
+                        possibleMate = null;
+                    }
+                }
+                break;
+            case State.lookingForFood:
+                if (distance <= 3)
+                {
+                    if (possibleFood == null)
+                    {
+                        state = State.exploring;
+                        break;
+                    }
+                    if (possibleFood.TryGetComponent<Seed>(out Seed seed))
+                    {
+                        StartCoroutine(seed.WaitToPass());
+                        timeToDeathByHunger = (1 -seed.mother.genes.seedNutrientValue) * seed.GetComponent<Fruit>().maturity;
+                        if (seed.transform.parent != null && seed.transform.parent.TryGetComponent<Plant>(out Plant plant))
+                        {
+                            plant.currentSeedCount--;
+                        }
+                        seed.transform.parent = transform;
+                        Destroy(possibleFood.GetComponent<Food>());
+                        possibleFood.GetComponent<MeshRenderer>().enabled = false;
+                        possibleFood.GetComponent<Collider>().enabled = false;
+                        possibleFood = null;
+                    }
+                    else
+                    {
+                        Destroy(possibleFood.gameObject);
+                        timeToDeathByHunger = 0;
+                        Debug.Log("What the fuck");
+                    }
+                    state = State.exploring;
+                    Debug.Log("no crumbs");
+                }
+                break;
+        }
+    }
+
     void Sense()
     {
         Collider[] objectsFound = Physics.OverlapSphere(transform.position, genes.sensoryRadius, possibleSensory);
         foundSMT = false;
+        float bestDist = 100000;
         foreach (Collider obj in objectsFound)
         {
             if (obj.gameObject != gameObject && obj.transform.parent != transform)
             {
+                float dist = Vector3.Distance(transform.position, obj.transform.position);
                 Animal animal = obj.GetComponentInParent<Animal>();
-                if (reproductionTime >= 0.5f && animal.genes.isMale != genes.isMale)
+                if (animal != null && timeToDeathByHunger <= genes.reproductiveUrge && animal.genes.isMale == false && genes.isMale == true && timeToDeathByAge >= 0.1f && !UnimpressedFemales.Contains(animal) && timeToMaturity >= 1 && animal.timeToMaturity >= 1 && Time.time >= timeToReurge && Time.time >= animal.timeToReurge && speciesIndex == animal.speciesIndex)
                 {
-                    foundSMT = true;
-                    thingFound = obj.transform.position;
-                    float dist = Vector3.Distance(transform.position, obj.transform.position);
-
-                    //animal.ArrangeParts();
-
-                    if (dist <= 2 && animal.isAttracted(this) && isAttracted(animal))
+                    if (dist < bestDist)
                     {
-                        reproductionTime = 0;
+                        bestDist = dist;
+                        foundSMT = true;
+                        thingFound = obj.transform.position;
+                        state = State.lookingForMate;
+                        possibleMate = animal;
+                    }
+                }
+                else if (obj.TryGetComponent<Food>(out Food food) && timeToDeathByHunger > genes.reproductiveUrge && state != State.lookingForMate && state != State.runningFromPredator)
+                {
+                    if (dist < bestDist)
+                    {
+                        bestDist = dist;
+                        foundSMT = true;
+                        thingFound = obj.transform.position;
+                        possibleFood = food;
+                        state = State.lookingForFood;
                     }
                 }
             }
         }
     }
 
+    IEnumerator ForgetHer(Animal her)
+    {
+        yield return new WaitForSeconds(30);
+
+        UnimpressedFemales.Remove(her);
+    }
+
     public bool isAttracted(Animal other)
     {
-        if (reproductionTime >= 0.5f && !genes.isMale)
+        float randVal = Random.value;
+
+        if (timeToDeathByHunger <= genes.reproductiveUrge && timeToDeathByAge >= 0.1f && randVal >= 0.2f && timeToMaturity >= 1 && other.timeToMaturity >= 1)
         {
-            reproductionTime = 0;
             Reproduce(other.genes);
         }
 
-        return reproductionTime >= 1;
+        return timeToDeathByHunger <= genes.reproductiveUrge && timeToDeathByAge >= 0.1f && randVal >= 0.2f;
     }
 
     void Reproduce(Genes father)
@@ -169,7 +284,38 @@ public class Animal : MonoBehaviour
 
         childAnimal.ArrangeParts();
 
-        childAnimal.timeToDeath = 0;
+        childAnimal.timeToDeathByAge = 0;
+
+        childAnimal.timeToMaturity = 0;
+
+        childAnimal.timeToDeathByHunger = 0f;
+
+        childAnimal.generation = generation + 1;
+
+        int newSpeciesIndex = 0;
+
+        Speciary speciary = environment.GetComponent<Speciary>();
+
+        int tryFind = speciary.FindAnimalSpecies(childAnimal.genes, speciesIndex);
+
+        if (tryFind == -1)
+        {
+            newSpeciesIndex = speciary.CreateAnimalSpecies(childAnimal.genes, ancestorIndex);
+            childAnimal.ancestorIndex = speciesIndex;
+        }
+        else
+        {
+            newSpeciesIndex = tryFind;
+        }
+
+        childAnimal.speciesIndex = newSpeciesIndex;
+
+        environment.RegisterBirth(childAnimal, childAnimal.generation);
+
+        Debug.Log("" + (generation + 1));
+
+        timeToReurge = genes.reproductiveStaminaRegenerationTime + Time.time;
+
     }
 
     private void OnDrawGizmosSelected()
@@ -252,4 +398,19 @@ public class Animal : MonoBehaviour
 
         LBackLeg.position = LBackLegAttachmentPoint.position - new Vector3(0, genes.backLegHeight / 2, 0);
     }
+
+    public void Die(CauseOfDeath cause)
+    {
+        environment.RegisterDeath(this, cause);
+    }
+}
+
+public enum State
+{
+    exploring, lookingForMate, lookingForFood, runningFromPredator
+}
+
+public enum CauseOfDeath
+{
+    age, starvation, beingEaten, populationControl
 }
