@@ -11,13 +11,13 @@ GameObject:
   - component: {fileID: 1857889530079578036}
   - component: {fileID: 1857889530079578037}
   - component: {fileID: 1857889530079578038}
-  m_Layer: 7
+  m_Layer: 11
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1857889530079578036
 Transform:
   m_ObjectHideFlags: 0
@@ -4827,7 +4827,7 @@ GameObject:
   - component: {fileID: 1857889530775242246}
   - component: {fileID: 1857889530775242245}
   - component: {fileID: 4432587545283991986}
-  m_Layer: 7
+  m_Layer: 11
   m_Name: Pollen
   m_TagString: Untagged
   m_Icon: {fileID: 0}

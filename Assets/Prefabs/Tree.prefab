@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   genes:
-    asexual: 0
+    asexual: 1
     male: 0
     seedNutrientValue: 0.75
     seedColor: {r: 0, g: 0, b: 0, a: 0}
@@ -66,9 +66,11 @@ MonoBehaviour:
     height: 15
     apenageThreshhold: 10
     stemThickness: 1.5
-    apendageCount: 70
+    apendageCount: 50
     upperApendageSize: 0.5
     lowerApendageSize: 5
+    rootRecursion: 1
+    rootDistance: 4.2
     stem: {fileID: 2100000, guid: 2d8ad841c79c74016a282added6d740f, type: 2}
     apendage: {fileID: 2100000, guid: 161d789635f2a4058a4496bef408cd29, type: 2}
     seed: {fileID: 2100000, guid: 35110b41ea969433184113b698560cfc, type: 2}
@@ -77,7 +79,7 @@ MonoBehaviour:
   SeedPrefab: {fileID: 1283556822888593711, guid: 35c19287a8b1e4e97b1a525177620fd5, type: 3}
   PollenPrefab: {fileID: 1857889530775242242, guid: 32ec4643db6c44a0282969c4ea42983c, type: 3}
   apendages: []
-  maturity: 0.999889
+  maturity: 0.99
   currentSeedCount: 0
 --- !u!1 &7048320168107609528
 GameObject:

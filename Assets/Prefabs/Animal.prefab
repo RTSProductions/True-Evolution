@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5191674581771655010}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Head Attachment Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 5191674581780478783}
   - component: {fileID: 5191674581780478776}
   - component: {fileID: 5191674581780478777}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Right Front Leg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,7 +140,7 @@ GameObject:
   - component: {fileID: 5191674581994668686}
   - component: {fileID: 5191674581994668687}
   - component: {fileID: 5191674581994668680}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Left Back Leg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 5191674582291708268}
   - component: {fileID: 5191674582291708269}
   - component: {fileID: 5191674582291708270}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Right Back Leg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -427,7 +427,7 @@ GameObject:
   - component: {fileID: 5191674583074555622}
   - component: {fileID: 5191674583074555623}
   - component: {fileID: 5191674583074555616}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Left Front Leg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -555,7 +555,7 @@ GameObject:
   - component: {fileID: 5191674583125621909}
   - component: {fileID: 5191674583125621910}
   - component: {fileID: 5191674583125621911}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Neck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -684,7 +684,7 @@ GameObject:
   - component: {fileID: 5191674583757838441}
   - component: {fileID: 5191674583757838442}
   - component: {fileID: 5191674583757838443}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -856,7 +856,7 @@ MonoBehaviour:
   ancestorIndex: 0
   possibleSensory:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 4288
   rb: {fileID: 5191674583781965296}
   head: {fileID: 5191674583757838440}
   neck: {fileID: 5191674583125621908}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 825121473056383116}
   - component: {fileID: 466887954432594830}
   - component: {fileID: 7053360073649380333}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Plane (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ MeshCollider:
   m_GameObject: {fileID: 2366157001367978723}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
@@ -107,7 +107,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8092230734856648756}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Leaf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,7 +143,7 @@ GameObject:
   - component: {fileID: 8092230735017982933}
   - component: {fileID: 8092230735017982934}
   - component: {fileID: 8092230735017982935}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 6466642562628254205}
   - component: {fileID: 8998586236754727266}
   - component: {fileID: 5972819954643864746}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -322,7 +322,7 @@ MeshCollider:
   m_GameObject: {fileID: 8377385325383726730}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30

@@ -28,6 +28,8 @@ public class PlantGenes
     public int apendageCount = 30;
     public float upperApendageSize = 0.5f;
     public float lowerApendageSize = 5;
+    public int rootRecursion = 1;
+    public float rootDistance = 4.2f;
     public Material stem;
     public Material apendage;
     public Material seed;
@@ -184,6 +186,10 @@ public class PlantGenes
         pollenAmount = DealWithAllThisBullshit(motherGenes.pollenAmount, fatherGenes.pollenAmount, -2, 2, 1);
 
         seedCount = DealWithAllThisBullshit(motherGenes.seedCount, fatherGenes.seedCount, -2, 2, 1);
+
+        rootRecursion = DealWithAllThisBullshit(motherGenes.rootRecursion, fatherGenes.rootRecursion, -2, 2, 1);
+
+        rootDistance = DealWithAllThisBullshit(motherGenes.rootDistance, fatherGenes.rootDistance, -1.5f, 1.5f, .2f);
     }
 
     public void InheritGenes(PlantGenes parentGenes)
@@ -223,5 +229,9 @@ public class PlantGenes
         pollenAmount = DealWithAllThisBullshit(parentGenes.pollenAmount, -2, 2, 1);
 
         seedCount = DealWithAllThisBullshit(parentGenes.seedCount, -2, 2, 1);
+
+        rootRecursion = DealWithAllThisBullshit(parentGenes.rootRecursion, -2, 2, 1);
+
+        rootDistance = DealWithAllThisBullshit(parentGenes.rootDistance, -1.5f, 1.5f, .2f);
     }
 }

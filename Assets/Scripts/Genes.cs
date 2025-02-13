@@ -83,7 +83,7 @@ public class Genes
 
         if (Random.value <= Environment.mutChance)
         {
-            mutantGene += (Environment.mutStrength*  Random.Range(minChange, maxChange));
+            mutantGene += (Environment.mutStrength *  Random.Range(minChange, maxChange));
         }
 
         return mutantGene;

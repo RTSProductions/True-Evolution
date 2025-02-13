@@ -20,6 +20,7 @@ public class Seed : MonoBehaviour
 
     public IEnumerator WaitToPass()
     {
+        GetComponent<Collider>().enabled = false;
         yield return new WaitForSeconds(Random.Range(20, 180));
         transform.parent = null;
         transform.position = new Vector3(transform.position.x, 1, transform.position.z);

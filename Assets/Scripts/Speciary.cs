@@ -316,7 +316,7 @@ public class Speciary : MonoBehaviour
 
             for (int i = 0; i < animals.Count; i++)
             {
-                if (animals[i].ancestor.index == ancestor && !viableSpecies.Contains(animals[i]))
+                if (animals[i].ancestor.index == ancestor && !viableSpecies.Contains(animals[i]) || animals[i].index == ancestor && !viableSpecies.Contains(animals[i]))
                 {
                     viableSpecies.Add(animals[i]);
                 }

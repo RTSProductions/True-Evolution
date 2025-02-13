@@ -6,6 +6,10 @@ public class Herb : MonoBehaviour
 {
     public float lifeForce = 1;
 
+    public float volume;
+
+    float maxHealth;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,9 +22,15 @@ public class Herb : MonoBehaviour
         
     }
 
+    public void Assign(float volume)
+    {
+        maxHealth = volume;
+    }
+
     public void Eat(float consumptionAmount)
     {
-        lifeForce -= consumptionAmount;
+        volume -= consumptionAmount;
+        lifeForce = volume / maxHealth;
         transform.localScale = Vector3.one * lifeForce;
     }
 }

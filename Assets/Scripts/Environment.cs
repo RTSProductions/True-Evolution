@@ -29,6 +29,8 @@ public class Environment : MonoBehaviour
 
     public List<int> population = new List<int>();
 
+    public float[,] nutrientDeposits;
+
     public static float mutChance = 0.5f;
     public static float mutStrength = 0.5f;
 
@@ -54,6 +56,7 @@ public class Environment : MonoBehaviour
     {
         mutChance = mutationChance;
         SpawnInitialPopulations();
+        SpawnNutrients();
     }
 
     // Update is called once per frame
@@ -105,7 +108,7 @@ public class Environment : MonoBehaviour
 
         if (populationControl && animals.Count >= maxPopulation)
         {
-            int destroy = Random.Range(50, maxPopulation - 50);
+            int destroy = Random.Range(50, maxPopulation - Random.Range(50, 100));
             int start = animals.Count - destroy;
 
             for (int i = start; i < animals.Count; i++)
@@ -129,6 +132,55 @@ public class Environment : MonoBehaviour
             Vector3 point = newSpawnPoint();
             GameObject plant = Instantiate(plantPrefab, point, Quaternion.identity);
         }
+    }
+
+    void SpawnNutrients()
+    {
+        int max = Mathf.RoundToInt((2 * spawnRadius) / 5f);
+        int index = 0;
+        nutrientDeposits = new float[max, max];
+
+        for (int i = 0; i < max; i++)
+        {
+            for (int j = 0; j < max; j++)
+            {
+                nutrientDeposits[i, j] = 1f;
+                //Debug.Log("" + index);
+                //GameObject test = new GameObject("nutrientDeposits");
+                //test.transform.position = new Vector3((i - max / 2) * 5, 1, (j - max / 2) * 5);
+                //MeshFilter mesh = test.AddComponent<MeshFilter>();
+                //mesh.mesh = animalPrefab.GetComponentInChildren<MeshFilter>().sharedMesh;
+                //test.AddComponent<MeshRenderer>();
+                index++;
+            }
+        }
+    }
+
+    public float AccessDeposit(Vector3 position)
+    {
+        int x = (int)((position.x + (nutrientDeposits.GetLength(0) * 2)) / 5);
+        int y = (int)((position.z + (nutrientDeposits.GetLength(0) * 2)) / 5);
+
+
+
+        return nutrientDeposits[x, y];
+    }
+
+    public void DepleteDeposit(Vector3 position, float amount)
+    {
+        int x = (int)((position.x + (nutrientDeposits.GetLength(0) * 2)) / 5);
+        int y = (int)((position.z + (nutrientDeposits.GetLength(0) * 2)) / 5);
+
+        nutrientDeposits[x, y] -= amount;
+        Debug.Log("" + nutrientDeposits[x, y]);
+    }
+
+    public void ReplenishDeposit(Vector3 position, float amount)
+    {
+        int x = (int)((position.x + (nutrientDeposits.GetLength(0) * 2)) / 5);
+        int y = (int)((position.z + (nutrientDeposits.GetLength(0) * 2)) / 5);
+
+        nutrientDeposits[x, y] += amount;
     }
 
     public void RegisterDeath(Animal animal, CauseOfDeath cause)
