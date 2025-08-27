@@ -34,12 +34,11 @@ public class Plant : MonoBehaviour
 
     float nutrientRequirement;
 
-    float nutrientsAchieved = 0f;
-
-    List<Root> roots = new List<Root>();
-    List<Root> lastRoots = new List<Root>();
+    public float nutrientsAchieved = 0f;
 
     int recursed = 0;
+
+    public RootHandler rootHandler;
 
     Environment environment;
 
@@ -76,7 +75,7 @@ public class Plant : MonoBehaviour
 
         MakeApendages();
 
-        GenerateRoots();
+        rootHandler.GenerateRoots();
     }
 
     void MakeApendages()
@@ -126,90 +125,6 @@ public class Plant : MonoBehaviour
         maxSeeds = j;
     }
 
-    void GenerateRoots()
-    {
-        for (int i = 0; i < 5; i++)
-        {
-            GameObject root = new GameObject("Root");
-            Root rootComp = root.AddComponent<Root>();
-            float xDir = Random.Range(-1f, 1f);
-            float zDir = Random.Range(-1f, 1f);
-            root.transform.position = (new Vector3(Mathf.Round(xDir), 0, Mathf.Round(zDir)) * genes.rootDistance) + (new Vector3(transform.position.x, -1, transform.position.z));
-            //root.transform.parent = transform;
-            rootComp.last = transform;
-            roots.Add(rootComp);
-            lastRoots.Add(rootComp);
-        }
-    }
-
-    void GrowRoots()
-    {
-        float resourcesAvailable = 0.5f;
-
-        if (Random.value > 0.5f && recursed < genes.rootRecursion)
-        {
-            List<Root> removeRoots = new List<Root>();
-            int currentCount = lastRoots.Count;
-            for (int i = 0; i < currentCount; i++)
-            {
-                for (int j = 0; j < 2; j++)
-                {
-                    GameObject root = new GameObject("Root");
-                    Root rootComp = root.AddComponent<Root>();
-                    float xDir = Random.Range(-1f, 1f);
-                    float zDir = Random.Range(-1f, 1f);
-                    root.transform.position = (new Vector3(Mathf.Round(xDir), 0, Mathf.Round(zDir)) * genes.rootDistance) + lastRoots[i].transform.position;
-                    //root.transform.parent = transform;
-                    rootComp.last = lastRoots[i].transform;
-                    lastRoots[i].next.Add(root.transform);
-                    removeRoots.Add(lastRoots[i]);
-                    roots.Add(rootComp);
-                    lastRoots.Add(rootComp);
-                    //nutrientsAchieved -= (2 / 10);
-                    //resourcesAvailable -= (2 / 10);
-                    if (resourcesAvailable < .2f)
-                    {
-                        break;
-                    }
-                }
-            }
-            for (int i = 0; i < removeRoots.Count; i++)
-            {
-                lastRoots.Remove(removeRoots[i]);
-            }
-            nutrientsAchieved -= ((2 * (float)currentCount) / 10);
-        }
-        else
-        {
-            List<Root> removeRoots = new List<Root>();
-            int currentCount = lastRoots.Count;
-            for (int i = 0; i < currentCount; i++)
-            {
-                GameObject root = new GameObject("Root");
-                Root rootComp = root.AddComponent<Root>();
-                float xDir = Random.Range(-1, 1);
-                float zDir = Random.Range(-1, 1);
-                root.transform.position = (new Vector3(xDir, 0, zDir) * genes.rootDistance) + lastRoots[i].transform.position;
-                //root.transform.parent = transform;
-                rootComp.last = lastRoots[i].transform;
-                lastRoots[i].next.Add(root.transform);
-                removeRoots.Add(lastRoots[i]);
-                roots.Add(rootComp);
-                lastRoots.Add(rootComp);
-                nutrientsAchieved -= (2 / 10);
-                resourcesAvailable -= (2 / 10);
-                if (resourcesAvailable < .2f)
-                {
-                    break;
-                }
-            }
-            for (int i = 0; i < removeRoots.Count; i++)
-            {
-                lastRoots.Remove(removeRoots[i]);
-            }
-        }
-    }
-
     float GetNutrients(bool toGrowMoreRoots)
     {
         float amountNeeded = nutrientRequirement - nutrientsAchieved;
@@ -217,19 +132,19 @@ public class Plant : MonoBehaviour
         int outOfUse = 0;
 
 
-        for (int i = 0; i < lastRoots.Count; i++)
+        for (int i = 0; i < rootHandler.lastRoots.Count; i++)
         {
-            if (environment.AccessDeposit(lastRoots[i].transform.position) > 0)
+            if (environment.AccessDeposit(rootHandler.lastRoots[i].position) > 0)
             {
-                if (environment.AccessDeposit(lastRoots[i].transform.position) >= 0.15f * Time.deltaTime)
+                if (environment.AccessDeposit(rootHandler.lastRoots[i].position) >= 0.15f * Time.deltaTime)
                 {
-                    environment.DepleteDeposit(lastRoots[i].transform.position, 0.15f * Time.deltaTime);
+                    environment.DepleteDeposit(rootHandler.lastRoots[i].position, 0.15f * Time.deltaTime);
                     amountAquired += 0.15f * Time.deltaTime;
                 }
                 else
                 {
-                    float whatsLeft = environment.AccessDeposit(lastRoots[i].transform.position);
-                    environment.DepleteDeposit(lastRoots[i].transform.position, whatsLeft);
+                    float whatsLeft = environment.AccessDeposit(rootHandler.lastRoots[i].position);
+                    environment.DepleteDeposit(rootHandler.lastRoots[i].position, whatsLeft);
                     amountAquired += whatsLeft;
                     outOfUse++;
                 }
@@ -242,19 +157,19 @@ public class Plant : MonoBehaviour
         amountNeeded -= amountAquired;
         if (amountNeeded >= .6)
         {
-            for (int i = 0; i < roots.Count; i++)
+            for (int i = 0; i < rootHandler.roots.Count; i++)
             {
-                if (environment.AccessDeposit(roots[i].transform.position) > 0)
+                if (environment.AccessDeposit(rootHandler.roots[i].position) > 0)
                 {
-                    if (environment.AccessDeposit(roots[i].transform.position) >= 0.15f * Time.deltaTime)
+                    if (environment.AccessDeposit(rootHandler.roots[i].position) >= 0.15f * Time.deltaTime)
                     {
-                        environment.DepleteDeposit(roots[i].transform.position, 0.15f * Time.deltaTime);
+                        environment.DepleteDeposit(rootHandler.roots[i].position, 0.15f * Time.deltaTime);
                         amountAquired += 0.15f * Time.deltaTime;
                     }
                     else
                     {
-                        float whatsLeft = environment.AccessDeposit(roots[i].transform.position);
-                        environment.DepleteDeposit(roots[i].transform.position, whatsLeft);
+                        float whatsLeft = environment.AccessDeposit(rootHandler.roots[i].position);
+                        environment.DepleteDeposit(rootHandler.roots[i].position, whatsLeft);
                         amountAquired += whatsLeft;
                     }
                 }
@@ -262,9 +177,9 @@ public class Plant : MonoBehaviour
         }
 
 
-        if (toGrowMoreRoots == false && (float)outOfUse / (float)lastRoots.Count >= 0.5)
+        if (toGrowMoreRoots == false && (float)outOfUse / (float)rootHandler.lastRoots.Count >= 0.5)
         {
-            GrowRoots();
+            rootHandler.GrowRoots();
         }
 
         return amountAquired;
@@ -320,9 +235,9 @@ public class Plant : MonoBehaviour
         {
             nutrientRequirement = 0;
             nutrientsAchieved = 0;
-            for (int i = 0; i < roots.Count; i++)
+            for (int i = 0; i < rootHandler.roots.Count; i++)
             {
-                roots[i].transform.parent = transform;
+                //rootHandler.roots[i].transform.parent = transform;
             }
         }
     }

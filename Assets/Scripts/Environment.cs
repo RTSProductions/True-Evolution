@@ -172,7 +172,7 @@ public class Environment : MonoBehaviour
         int y = (int)((position.z + (nutrientDeposits.GetLength(0) * 2)) / 5);
 
         nutrientDeposits[x, y] -= amount;
-        Debug.Log("" + nutrientDeposits[x, y]);
+        //Debug.Log("" + nutrientDeposits[x, y]);
     }
 
     public void ReplenishDeposit(Vector3 position, float amount)
@@ -201,7 +201,7 @@ public class Environment : MonoBehaviour
                 Debug.Log(animal.gameObject.name + " died from starvation");
                 break;
             case CauseOfDeath.populationControl:
-                Hunger++;
+                Age++;
                 Debug.Log(animal.gameObject.name + " died from population control");
                 break;
         }

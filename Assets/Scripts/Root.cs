@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Root : MonoBehaviour
+public class RRoot : MonoBehaviour
 {
     public Transform last;
     public List<Transform> next = new List<Transform>();

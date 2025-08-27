@@ -106,7 +106,7 @@ public class Animal : MonoBehaviour
         timeToMaturity += Time.deltaTime * 1 / 200;
 
         if (timeToMaturity >= 1)
-            timeToDeathByAge += Time.deltaTime * 1 / 600;
+            timeToDeathByAge += Time.deltaTime * 1 / 1000;
 
         timeToDeathByHunger += Time.deltaTime / ((energyCost * 3.50877192982f) * 2);
 
@@ -145,7 +145,7 @@ public class Animal : MonoBehaviour
         Vector3 moveAmount;
         Vector3 movementDir = transform.forward * 2;
         moveAmount = movementDir * (genes.speed / weight);
-        rb.velocity = (moveAmount * Time.fixedDeltaTime * 30) + new Vector3(0, rb.velocity.y, 0);
+        rb.linearVelocity = (moveAmount * Time.fixedDeltaTime * 30) + new Vector3(0, rb.linearVelocity.y, 0);
 
         if (foundSMT == false)
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(new Vector3(0, veiwAngle, 0)), Time.deltaTime);
