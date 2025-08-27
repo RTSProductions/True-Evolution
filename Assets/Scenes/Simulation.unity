@@ -1075,8 +1075,8 @@ MonoBehaviour:
   weight: []
   population: 
   mutationChance: 0.992
-  mutationStrength: 0
-  populationControl: 1
+  mutationStrength: 0.041
+  populationControl: 0
   maxPopulation: 900
   plantPrefab: {fileID: 7048320168096948843, guid: f45072167c6f8422cbb887e4c068bf20, type: 3}
   animalPrefab: {fileID: 5191674583781965299, guid: 78dbef8ba96d74fe1a7952ad67a84c25, type: 3}
